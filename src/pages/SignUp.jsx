@@ -11,7 +11,7 @@ import Container from '@material-ui/core/Container';
 import { useFormik } from 'formik'
 import * as yup from 'yup'
 import { Link, useHistory } from 'react-router-dom'
-// import {useToasts} from 'react-toast-notifications';
+import { useToasts } from 'react-toast-notifications';
 import axios from 'axios';
 
 
@@ -40,7 +40,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function SignUp() {
     const classes = useStyles();
-    // const {addToast} = useToasts();
+    const {addToast} = useToasts();
     const history=useHistory();
     const phoneRegExp = /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/
 
@@ -64,17 +64,20 @@ export default function SignUp() {
             onSubmit: (data) => {
                 axios.post('http://127.0.0.1:8000/users/adduser/',data).then((res)=>{
                     console.log(res.data)
-                    if(res.data.status==1){
+                    if(res.data.status===1){
+                        addToast(res.data.message, { appearance: 'success',autoDismiss : true });
                         console.log("registred succcessfully")
                         history.push('/signin')
-                        // addToast("Registred succcessfully")
+                        
                     }
                     else{
                         console.log("fail to registered")
+                        addToast(res.data.message, { appearance: 'error',autoDismiss : true });
                     }
                 }).catch((error)=>{
                     console.log(error);
                     console.log("Something went wrong");
+                    addToast(error, { appearance: 'error',autoDismiss : true });
                 })
             }
         }

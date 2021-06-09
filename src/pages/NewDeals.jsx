@@ -1,4 +1,4 @@
-import React from 'react';
+import React,{useState} from 'react';
 import clsx from 'clsx';
 import { makeStyles, useTheme, lighten } from '@material-ui/core/styles';
 import Drawer from '@material-ui/core/Drawer';
@@ -30,7 +30,9 @@ import MenuItem from '@material-ui/core/MenuItem';
 import { useFormik } from 'formik'
 import * as yup from 'yup';
 import axios from 'axios';
-
+import { useToasts } from 'react-toast-notifications';
+import Loader from './components/Loader';
+import Avatar from '@material-ui/core/Avatar';
 
 const drawerWidth = 240;
 const icons = [
@@ -39,7 +41,7 @@ const icons = [
     <AddBoxIcon />,
 ]
 
-const routes = ['/admin/dashboard', '/admin/dashboard/about', '/admin/dashboard/newdeals'];
+const routes = ['/admin/dashboard', '/admin/dashboard/about', '/admin/dashboard/newdeals','/admin/dashboard/allcustomer'];
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -106,9 +108,10 @@ const useStyles = makeStyles((theme) => ({
 function NewDeals({ history }) {
     
     const category=["Fashion(men)","Mobile & Tablets","Groceries","Books","Fashion(women)"];
-
+    const {addToast} = useToasts();
     const classes = useStyles();
     const theme = useTheme();
+    const [isloading, setisloading] = useState(false);
     const [open, setOpen] = React.useState(true);
 
     const handleDrawerOpen = () => {
@@ -122,20 +125,15 @@ function NewDeals({ history }) {
 
 
 
-    const [age, setAge] = React.useState('');
-    
 
-
-    const handleChange = (event) => {
-        setAge(event.target.value);
-    };
 
 
     const schema = yup.object().shape({
-        dealName: yup.string().required("This field is required"),
+        deal_name: yup.string().required("This field is required"),
         category: yup.string().required("This field is required"),
-        discountPrice: yup.string().required("This field is required"),
-        originalPrice: yup.string().required("This field is required"),
+        discount_price: yup.string().required("This field is required"),
+        original_price: yup.string().required("This field is required"),
+        
     })
 
 
@@ -152,14 +150,23 @@ function NewDeals({ history }) {
             },
             validationSchema: schema,
             onSubmit: (data) => {
+                setisloading(true);
                 console.log(data)
+
                 axios.post("http://127.0.0.1:8000/admin/addDeal",data).then((res)=>{
                     console.log(res.data)
-                    if(res.status==1){
+                    if(res.data.status==1){
                         console.log(" Deal added Successfully")
+                        addToast(res.data.message, { appearance: 'success',autoDismiss : true });
                     }
-                }).catch((error)=>{
+                    else{
+                        addToast(res.data.message, { appearance: 'error',autoDismiss : true });
+                    }
+                    setisloading(false);
+                }).catch((err)=>{
+                    setisloading(false);
                     console.log("Something went wrong")
+                    addToast("failed to add this deal try again...", { appearance: 'error',autoDismiss : true });
                 })
 
             }
@@ -169,7 +176,12 @@ function NewDeals({ history }) {
     
 
     return (
-         console.log(formik),
+        isloading ? 
+        <div style={{display:'flex',alignItems:'center','justifyContent':'center'}}>
+             <Loader></Loader>
+ 
+        </div>
+        :
         <div className={classes.root}>
             <Router>
                 <CssBaseline />
@@ -191,9 +203,22 @@ function NewDeals({ history }) {
                         >
                             <MenuIcon />
                         </IconButton>
+                        <div className='item-1'>
                         <Typography variant="h6" noWrap>
                             Admin Dashboard
-          </Typography>
+                       </Typography>
+                       </div>
+                       <div className='item-2'>
+
+<IconButton>
+    <Avatar src="/broken-image.jpg" />
+
+</IconButton>
+</div>
+
+<div className='item-3'>
+<Button color="inherit" onClick={()=>{history.push('/signin')}}>Logout</Button>
+</div>
                     </Toolbar>
                 </AppBar>
                 <Drawer
@@ -216,13 +241,18 @@ function NewDeals({ history }) {
                             <ListItemIcon>{icons[0]}</ListItemIcon>
                             <ListItemText primary={"Home"} />
                         </ListItem>
-                        <ListItem button key={1} onClick={() => history.push(routes[1])}>
-                            <ListItemIcon>{icons[1]}</ListItemIcon>
-                            <ListItemText primary={"About"} />
-                        </ListItem>
+                
                         <ListItem button key={2} onClick={() => history.push(routes[2])}>
                             <ListItemIcon>{icons[2]}</ListItemIcon>
                             <ListItemText primary={"New Deals"} />
+                        </ListItem>
+                        <ListItem button key={2} onClick={() => history.push(routes[3])}>
+                            <ListItemIcon>{icons[2]}</ListItemIcon>
+                            <ListItemText primary={"All Customers"} />
+                        </ListItem>
+                        <ListItem button key={1} onClick={() => history.push(routes[1])}>
+                            <ListItemIcon>{icons[1]}</ListItemIcon>
+                            <ListItemText primary={"About"} />
                         </ListItem>
 
 
@@ -267,8 +297,8 @@ function NewDeals({ history }) {
                                                 <Select
                                                     labelId="demo-simple-select-outlined-label"
                                                     id="demo-simple-select-outlined"
-                                                    // value={age}
-                                                    onChange={handleChange}
+                                                    value={formik.values.category}
+                                                    onChange={formik.handleChange}
                                                     label="Category"
                                                     name="category"
                                                     style={{ width: 500, backgroundColor: 'white' }}
