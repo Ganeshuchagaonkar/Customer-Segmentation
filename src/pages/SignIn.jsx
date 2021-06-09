@@ -14,7 +14,7 @@ import { useFormik } from 'formik'
 import * as yup from 'yup'
 import { Link } from 'react-router-dom';
 import {useHistory} from 'react-router-dom';
-// import {useToasts} from 'react-toast-notifications';
+import {useToasts} from 'react-toast-notifications';
 import './styles.css';
 import axios from 'axios';
 
@@ -42,7 +42,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function SignIn() {
   const classes = useStyles();
-  // const {addToast}=useToasts();
+  const { addToast } = useToasts();
   const history =useHistory();
 
 
@@ -67,20 +67,22 @@ export default function SignIn() {
           if(res.status==200){
             localStorage.setItem('username',res.data.username)
             console.log(localStorage.getItem('username'))
-            // addToast("Successfully logged In",{appearance:'success',autoDismiss:true});
+            addToast("Successfully logged In",{appearance:'success',autoDismiss:true});
             history.push('/admin/dashboard')
 
           }
           else{
             console.log("Invalid user")
+            addToast("Invalid username or password",{appearance:'error',autoDismiss:true});
             history.push('/signin')
+          
           }
          
 
         }
         ).catch((error)=>{
           console.log(error)
-          // addToast("Invalid username or password",{appearance:"error",autoDismiss:true})
+          addToast("Invalid username or password",{appearance:"error",autoDismiss:true})
         })
       
         
@@ -129,7 +131,7 @@ export default function SignIn() {
             id="password"
             helperText={(formik.touched.password && formik.errors.password)? formik.errors.password : ""}
           />
-          <Grid container>
+          {/* <Grid container>
           <Grid item xs={12} sm={6}>
             <FormControlLabel
               control={<Checkbox value="remember" color="primary" />}
@@ -143,7 +145,7 @@ export default function SignIn() {
               </Link>
 
           </Grid>
-          </Grid>
+          </Grid> */}
 
           <Button
             type="submit"

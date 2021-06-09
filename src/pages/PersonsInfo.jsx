@@ -32,7 +32,7 @@ const icons = [
 
 ]
 
-const routes = ['/admin/dashboard', '/admin/dashboard/about', '/admin/dashboard/newdeals','/admin/dashboard/personinfo'];
+const routes = ['/admin/dashboard', '/admin/dashboard/about', '/admin/dashboard/newdeals','/admin/dashboard/allcustomer'];
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -102,7 +102,7 @@ const useStyles = makeStyles((theme) => ({
 function Dashboard({ history }) {
     const classes = useStyles();
     const theme = useTheme();
-    const [open, setOpen] = React.useState(false);
+    const [open, setOpen] = React.useState(true);
 
     const handleDrawerOpen = () => {
         setOpen(true);
@@ -154,7 +154,7 @@ function Dashboard({ history }) {
                         </div>
 
                         <div className='item-3'>
-                            <Button color="inherit">Logout</Button>
+                            <Button color="inherit" onClick={()=>{history.push('/signin')}}>Logout</Button>
                         </div>
 
 
@@ -184,13 +184,17 @@ function Dashboard({ history }) {
                             <ListItemIcon>{icons[0]}</ListItemIcon>
                             <ListItemText primary={"Home"} />
                         </ListItem>
-                        <ListItem button key={1} onClick={() => history.push(routes[1])}>
-                            <ListItemIcon>{icons[1]}</ListItemIcon>
-                            <ListItemText primary={"About"} />
-                        </ListItem>
                         <ListItem button key={2} onClick={() => history.push(routes[2])}>
                             <ListItemIcon>{icons[2]}</ListItemIcon>
                             <ListItemText primary={"New Deals"} />
+                        </ListItem>
+                        <ListItem button key={2} onClick={() => history.push(routes[3])}>
+                            <ListItemIcon>{icons[2]}</ListItemIcon>
+                            <ListItemText primary={"All Customers"} />
+                        </ListItem>
+                        <ListItem button key={1} onClick={() => history.push(routes[1])}>
+                            <ListItemIcon>{icons[1]}</ListItemIcon>
+                            <ListItemText primary={"About"} />
                         </ListItem>
                         
                     </List>
